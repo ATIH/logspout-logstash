@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"net"
+	"os"
 
 	"github.com/gliderlabs/logspout/router"
 )
@@ -37,14 +38,23 @@ func NewLogstashAdapter(route *router.Route) (router.LogAdapter, error) {
 	}, nil
 }
 
+func getopt(name, dfault string) string {
+	value := os.Getenv(name)
+	if value == "" {
+		value = dfault
+	}
+	return value
+}
+
 // Stream implements the router.LogAdapter interface.
 func (a *LogstashAdapter) Stream(logstream chan *router.Message) {
 	for m := range logstream {
+
 		dockerInfo := DockerInfo{
 			Name:     m.Container.Name,
 			ID:       m.Container.ID,
 			Image:    m.Container.Config.Image,
-			Hostname: m.Container.Config.Hostname,
+			Hostname: getopt("HOSTNAME", "m.Container.Config.Hostname"),
 		}
 		var js []byte
 
