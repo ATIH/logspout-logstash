@@ -50,13 +50,12 @@ func getopt(name, dfault string) string {
 func (a *LogstashAdapter) Stream(logstream chan *router.Message) {
 	for m := range logstream {
 
-		logstashHostname := getopt("HOSTNAME", m.Container.Config.Hostname)
-
 		dockerInfo := DockerInfo{
-			Name:     m.Container.Name,
-			ID:       m.Container.ID,
-			Image:    m.Container.Config.Image,
-			Hostname: logstashHostname,
+			Name:        m.Container.Name,
+			ID:          m.Container.ID,
+			Image:       m.Container.Config.Image,
+			Hostname:    m.Container.Config.Hostname,
+			Environment: os.Getenv("ENVIRONMENT"),
 		}
 		var js []byte
 
@@ -92,10 +91,11 @@ func (a *LogstashAdapter) Stream(logstream chan *router.Message) {
 }
 
 type DockerInfo struct {
-	Name     string `json:"name"`
-	ID       string `json:"id"`
-	Image    string `json:"image"`
-	Hostname string `json:"hostname"`
+	Name        string `json:"name"`
+	ID          string `json:"id"`
+	Image       string `json:"image"`
+	Hostname    string `json:"hostname"`
+	Environment string `json:"environment"`
 }
 
 // LogstashMessage is a simple JSON input to Logstash.
